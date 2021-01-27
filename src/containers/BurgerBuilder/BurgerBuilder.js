@@ -38,10 +38,13 @@ export default class BurgerBuilder extends Component {
     removeIngredientHandler = type => {
         let oldCount = this.state.ingredients[type];
         let newCount = null;
+        let newPrice = null;
         if(!oldCount) {
             newCount = 0;
+            newPrice = this.state.price;
         } else {
             newCount = oldCount - 1;
+            newPrice = this.state.price - INGREDIENT_PRICES[type]
         }
         
         const newIngredients = {
@@ -49,7 +52,6 @@ export default class BurgerBuilder extends Component {
         }
         newIngredients[type] = newCount;
 
-        const newPrice = this.state.price - INGREDIENT_PRICES[type]
         this.setState({ ingredients: newIngredients, price: newPrice })
     }
 
@@ -58,7 +60,11 @@ export default class BurgerBuilder extends Component {
         return (
             <Fragment>
                 <Burger ingredients={ingredients}/>
-                <BuildControls removeIngredient={this.removeIngredientHandler} addIngredient={this.addIngredientHandler} types={ingredients}/>
+                <BuildControls 
+                    removeIngredient={this.removeIngredientHandler} 
+                    addIngredient={this.addIngredientHandler} 
+                    types={ingredients}
+                    price={this.state.price}/>
             </Fragment>
         )
     }
