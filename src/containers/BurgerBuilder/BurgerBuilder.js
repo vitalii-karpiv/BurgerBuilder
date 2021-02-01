@@ -1,7 +1,9 @@
 import React, { Component, Fragment } from 'react';
 
 import Burger from '../../components/Burger/Burger';
-import BuildControls from '../../components/Burger/BuildControls/BuildControls'
+import BuildControls from '../../components/Burger/BuildControls/BuildControls';
+import Modal from '../../components/UI/Modal/Modal';
+import OrderSummary from '../../components/Burger/OrderSummary/OrderSummary';
 
 const INGREDIENT_PRICES = {
     cheese: 0.4,
@@ -20,7 +22,8 @@ export default class BurgerBuilder extends Component {
             salad: 0
         },
         price : 4.00,
-        purchaseable: false
+        purchaseable: false,
+        showModal: false
     }
 
     updatePurchaseState = (ingredients) => {
@@ -31,6 +34,18 @@ export default class BurgerBuilder extends Component {
         }
 
         this.setState ({ purchaseable: sum > 0})
+    }
+
+    showingModalHandler = () => {
+        this.setState({ showModal: true })
+    }
+
+    hidingModalHandler = () => {
+        this.setState({ showModal: false })
+    }
+
+    purchaseContinueHandler = () => {
+        alert("You continue!");
     }
 
     addIngredientHandler = type => {
@@ -71,13 +86,24 @@ export default class BurgerBuilder extends Component {
         const ingredients = this.state.ingredients;
         return (
             <Fragment>
+                { this.state.showModal && 
+                <Modal 
+                    show={this.state.showModal}
+                    clicked={this.hidingModalHandler}>
+                    <OrderSummary 
+                        price={this.state.price}
+                        ingredients={this.state.ingredients}
+                        continue={this.purchaseContinueHandler}
+                        cancel={this.hidingModalHandler}/>
+                </Modal>}
                 <Burger ingredients={ingredients}/>
                 <BuildControls 
                     removeIngredient={this.removeIngredientHandler} 
                     addIngredient={this.addIngredientHandler} 
                     types={ingredients}
                     price={this.state.price}
-                    purchaseable={this.state.purchaseable}/>
+                    purchaseable={this.state.purchaseable}
+                    showingModal={this.showingModalHandler}/>
             </Fragment>
         )
     }
