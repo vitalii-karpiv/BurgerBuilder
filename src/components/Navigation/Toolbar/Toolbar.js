@@ -8,7 +8,7 @@ import Hamburger from '../../../assets/images/hamburger.jpg'
 const Toolbar = props => {
     return (
         <header className={classes.Toolbar}>
-            <img className={classes.Hamburger} src={Hamburger} onClick={props.toggleSideDrawer} />
+            <img className={classes.Hamburger} src={Hamburger} alt="Menu" onClick={props.toggleSideDrawer} />
             <div className={classes.Logo}>
                 <Logo/>
             </div>
