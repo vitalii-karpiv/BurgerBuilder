@@ -50,26 +50,16 @@ export default class BurgerBuilder extends Component {
     }
 
     purchaseContinueHandler = () => {
-        // alert("You continue!");
-        this.setState({ sendingOrder: true })
-        const order = {
-            ingredients: this.state.ingredients,
-            price: this.state.price.toFixed(2),
-            customer : {
-                name: 'Vitalii Karpiv',
-                adress : {
-                    street: 'Ternopilska 9',
-                    city: "Ternopil "
-                }
-            },
-            deliveryMethod: "fastest"
+        const queryParams = [];
+        for (let i in this.state.ingredients) {
+            queryParams.push(encodeURIComponent(i) + '=' + encodeURIComponent(this.state.ingredients[i]))
         }
-        axios.post("https://burgerbuilder-cd277-default-rtdb.firebaseio.com/orders.json", order)
-            .then(res => this.setState({ sendingOrder: false, showModal: false }))
-            .catch(problem => {
-                console.log(problem);
-                this.setState({ sendingOrder: false, error: true })
-            })
+        queryParams.push('price=' + this.state.price.toFixed(2))
+        const queryString = queryParams.join('&')
+        this.props.history.push({
+            pathname: '/checkout',
+            search: '?' + queryString
+        });
     }
 
     addIngredientHandler = type => {

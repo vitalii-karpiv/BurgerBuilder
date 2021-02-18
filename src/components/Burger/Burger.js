@@ -15,7 +15,6 @@ const Burger = props => {
             return arr.concat(elem)
         }, [])
 
-    console.log(ingredientsArr)
 
     if(ingredientsArr.length === 0) {
         ingredientsArr = <p>Please choose the ingredient</p>
