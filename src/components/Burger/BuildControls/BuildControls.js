@@ -24,6 +24,7 @@ const BuildControls = props => {
                     removeIngredient = { () => props.removeIngredient(elem.type) }
                     addIngredient={ () => props.addIngredient(elem.type) }
                     key={elem.type}
+                    type={elem.type}
                     label={elem.label} />
             })}
             <button 
