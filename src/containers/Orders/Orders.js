@@ -1,39 +1,43 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
-import Order from '../../components/Navigation/Order/Order';
-import axios from 'axios';
+import Order from '../../components/Order/Order/Order';
+import * as actions from '../../store/actions/';
+import Spinner from '../../components/UI/Spinner/Spinner';
 
-export default class Orders extends Component {
+class Orders extends Component {
 
     state = {
         orders: [],
-        loading : true,
+        loading: true,
         error: false
     }
 
     componentDidMount() {
-        axios('https://burgerbuilder-cd277-default-rtdb.firebaseio.com/orders.json')
-            .then(res => {
-                let fetchedOrders = [];
-                for (let i in res.data) {
-                    console.log(i)
-                    fetchedOrders.push({
-                        ...res.data[i],
-                        id: i
-                    })
-                }
-                console.log(fetchedOrders)
-                this.setState({ loading: false, orders: fetchedOrders })
-            })
-            .catch(err => this.setState({ loading: false, error: true }))
+        this.props.onFetchOrders();
     }
 
     render() {
-        return (
-            <>
-                <Order />
-                <Order />
-            </>
-        )
+        let orders = this.props.error ? <p style={{textAlign: 'center'}}>Something went wrong</p> : <Spinner />;
+        if (this.props.orders.length) {
+            orders = this.props.orders.map(order => <Order key={order.id} ingredients={order.ingredients} price={order.price} />)
+        }
+
+        return orders;
     }
 }
+
+const mapStateToProps = state => {
+    return {
+        orders: state.order.orders,
+        error: state.order.error
+    }
+}
+
+const mapDispatchToProps = dispatch => {
+    return {
+        onFetchOrders: () => dispatch(actions.fetchOrders())
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Orders)

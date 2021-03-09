@@ -3,10 +3,11 @@ import { connect } from 'react-redux';
 
 import classes from './ContactData.module.css';
 import Button from '../../../components/UI/Button/Button';
-import axios from 'axios';
 import Spinner from '../../../components/UI/Spinner/Spinner';
 import ErrorMessage from '../../../components/UI/ErrorMessage/ErrorMessage';
 import Input from '../../../components/UI/Input/Input';
+
+import * as actions from '../../../store/actions/index';
 
 class ContactData extends Component {
     state = {
@@ -67,13 +68,11 @@ class ContactData extends Component {
             }
         },
         formIsValid: false,
-        sendingOrder: false,
         error: false
     }
 
     orderHandler = (e) => {
         e.preventDefault();
-        this.setState({ sendingOrder: true })
         const contactData = {}
         for (let formId in this.state.orderForm) {
             contactData[formId] = this.state.orderForm[formId].value;
@@ -83,17 +82,8 @@ class ContactData extends Component {
             price: this.props.price,
             contactData
         }
-        axios.post("https://burgerbuilder-cd277-default-rtdb.firebaseio.com/orders.json", order)
-            .then(res => {
-                if (res.status === 200) {
-                    alert('We successfully receive your order!')
-                }
-                this.setState({ sendingOrder: false })
-            })
-            .catch(() => {
-                this.setState({ sendingOrder: false, error: true })
-            })
-        this.props.history.push('/')
+
+        this.props.onOrderBurger(order);
     }
 
     checkFormValidity = () => {
@@ -109,7 +99,7 @@ class ContactData extends Component {
         const newFormElement = { ...newOrderForm[formId] };
         newFormElement.value = event.target.value.trim();
         newFormElement.isTouched = true;
-        if(event.target.name === 'email') {
+        if (event.target.name === 'email') {
             const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
             if (re.test(String(event.target.value).toLowerCase())) {
                 newFormElement.isValid = true;
@@ -153,7 +143,7 @@ class ContactData extends Component {
                 <Button disabled={!this.state.formIsValid} color='Success'>Submit</Button>
             </form>
         )
-        if (this.state.sendingOrder) {
+        if (this.props.loading) {
             form = <Spinner />
         }
         if (this.state.error) {
@@ -170,9 +160,16 @@ class ContactData extends Component {
 
 const mapStateToProps = state => {
     return {
-        ingredients: state.ingredients,
-        price: state.price
+        ingredients: state.burgerBuilder.ingredients,
+        price: state.burgerBuilder.price,
+        loading: state.order.loading
     }
 }
 
-export default connect(mapStateToProps)(ContactData);
+const mapDispatchToProps = dispatch => {
+    return {
+        onOrderBurger: orderData => dispatch(actions.purchaseBurger(orderData))
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(ContactData);

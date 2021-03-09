@@ -7,8 +7,7 @@ import Modal from '../../components/UI/Modal/Modal';
 import OrderSummary from '../../components/Burger/OrderSummary/OrderSummary';
 import Spinner from '../../components/UI/Spinner/Spinner';
 import ErrorMessage from '../../components/UI/ErrorMessage/ErrorMessage';
-import axios from 'axios';
-import * as actionTypes from '../../store/actions';
+import * as actions from '../../store/actions/index';
 
 
 class BurgerBuilder extends Component {
@@ -16,15 +15,12 @@ class BurgerBuilder extends Component {
     state = {
         purchaseable: false,
         showModal: false,
-        sendingOrder: false,
-        error: false
+        sendingOrder: false
     }
 
-    // componentDidMount() {
-    //     axios.get('https://burgerbuilder-cd277-default-rtdb.firebaseio.com/ingredients.json')
-    //         .then(res => this.setState({ ingredients: res.data }))
-    //     console.log(this.props)
-    // }
+    componentDidMount() {
+        this.props.onInitIngredients()
+    }
 
     updatePurchaseable = (ingredients) => {
         let sum = 0
@@ -45,22 +41,22 @@ class BurgerBuilder extends Component {
     }
 
     purchaseContinueHandler = () => {
+        this.props.onPurchaseInit()
         this.props.history.push('/checkout')
     }
 
     render() {
-        const ingredients = this.props.ingredients;
 
-        let burger = <Spinner />;
+        let burger = this.props.error ? <p>Something went wrong</p> : <Spinner />;
 
         if(this.props.ingredients) {
             burger = (
                 <>
-                    <Burger ingredients={ingredients}/>
+                    <Burger ingredients={this.props.ingredients}/>
                     <BuildControls 
                         removeIngredient={this.props.onRemoveIngredient} 
                         addIngredient={this.props.onAddIngredient} 
-                        types={ingredients}
+                        types={this.props.ingredients}
                         price={this.props.price}
                         purchaseable={this.updatePurchaseable(this.props.ingredients)}
                         showingModal={this.showingModalHandler}/>
@@ -93,15 +89,18 @@ class BurgerBuilder extends Component {
 
 const mapStateToProps = state => {
     return {
-        ingredients: state.ingredients,
-        price: state.price
+        ingredients: state.burgerBuilder.ingredients,
+        price: state.burgerBuilder.price,
+        error: state.burgerBuilder.error
     }
 }
 
 const mapDispatchToProps = dispatch => {
     return {
-        onAddIngredient: (ingredientName) => dispatch({type: actionTypes.ADD_INGRIDIENT, ingredientName }),
-        onRemoveIngredient: (ingredientName) => dispatch({type: actionTypes.REMOVE_INGREDIENT, ingredientName })
+        onAddIngredient: (ingredientName) => dispatch(actions.addIngredient(ingredientName)),
+        onRemoveIngredient: (ingredientName) => dispatch(actions.removeIngredient(ingredientName)),
+        onInitIngredients: () => dispatch(actions.initIngredients()),
+        onPurchaseInit: () => dispatch(actions.purchaseInit())
     }
 }
 
